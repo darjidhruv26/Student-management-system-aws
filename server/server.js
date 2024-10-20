@@ -1,29 +1,33 @@
 const express = require("express");
-const mysql = require("mysql");
+const mysql = require("mysql2");
 const cors = require("cors");
 const path = require("path");
+const dotenv = require('dotenv');
 const app = express();
-//path.resolve()
+
+// Load environment variables
+dotenv.config();
+
 app.use(express.static(path.join(__dirname, "public")));
 app.use(cors());
 app.use(express.json());
 
 const port = 5000;
 const db = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "",
-  database: "students",
+  host: process.env.HOST,
+  user: process.env.USER,
+  password: process.env.PASSWORD,
+  database: process.env.DATABASE,
 });
 
-
+// Define your routes
 app.post("/add_user", (req, res) => {
   const sql =
     "INSERT INTO student_details (`name`,`email`,`age`,`gender`) VALUES (?, ?, ?, ?)";
   const values = [req.body.name, req.body.email, req.body.age, req.body.gender];
   db.query(sql, values, (err, result) => {
     if (err)
-      return res.json({ message: "Something unexpected has occured" + err });
+      return res.json({ message: "Something unexpected has occurred: " + err });
     return res.json({ success: "Student added successfully" });
   });
 });
@@ -58,7 +62,7 @@ app.post("/edit_user/:id", (req, res) => {
   ];
   db.query(sql, values, (err, result) => {
     if (err)
-      return res.json({ message: "Something unexpected has occured" + err });
+      return res.json({ message: "Something unexpected has occurred: " + err });
     return res.json({ success: "Student updated successfully" });
   });
 });
@@ -69,11 +73,11 @@ app.delete("/delete/:id", (req, res) => {
   const values = [id];
   db.query(sql, values, (err, result) => {
     if (err)
-      return res.json({ message: "Something unexpected has occured" + err });
-    return res.json({ success: "Student updated successfully" });
+      return res.json({ message: "Something unexpected has occurred: " + err });
+    return res.json({ success: "Student deleted successfully" });
   });
 });
 
 app.listen(port, () => {
-  console.log(`listening on port ${port} `);
+  console.log(`listening on port ${port}`);
 });

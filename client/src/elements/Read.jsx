@@ -14,9 +14,8 @@ function Read() {
       .catch((err) => console.log(err));
   }, [id]);
   return (
-    <div className="container-fluid vw-100 vh-100 bg-primary">
+    <div className="container-fluid vw-100 vh-100 p-5">
       <h1>User {id}</h1>
-      <Link to="/" className="btn btn-success">Back</Link>
       {data.map((student) => {
         return (
           <ul className="list-group">
@@ -43,6 +42,7 @@ function Read() {
           </ul>
         );
       })}
+      <Link to="/" className="btn btn-success m-4">Back</Link>
     </div>
   );
 }
