@@ -1,20 +1,64 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import Home from "./elements/Home";
-import Create from "./elements/Create";
-import Edit from "./elements/Edit";
-import Read from "./elements/Read";
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Route,
+  Outlet,
+} from "react-router-dom";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
+import Write from "./pages/Write";
+import Home from "./pages/Home";
+import Single from "./pages/Single";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import "./style.scss"
+
+const Layout = () => {
+  return (
+    <>
+      <Navbar />
+      <Outlet />
+      <Footer />
+    </>
+  );
+};
+
+const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <Layout />,
+    children: [
+      {
+        path: "/",
+        element: <Home />,
+      },
+      {
+        path: "/post/:id",
+        element: <Single />,
+      },
+      {
+        path: "/write",
+        element: <Write />,
+      },
+    ],
+  },
+  {
+    path: "/register",
+    element: <Register />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
+  },
+]);
+
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/create" element={<Create />} />
-        <Route path="/edit/:id" element={<Edit />} />
-        <Route path="/read/:id" element={<Read />} />
-      </Routes>
-    </BrowserRouter>
+    <div className="app">
+      <div className="container">
+        <RouterProvider router={router} />
+      </div>
+    </div>
   );
 }
 
