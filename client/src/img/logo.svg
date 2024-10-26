@@ -1,0 +1,10 @@
+<svg width="1856" height="284" viewBox="0 0 491.06667 75.141664" id="svg5" xmlns="http://www.w3.org/2000/svg" ref={svgRef} aria-labelledby={titleId} {...props}>
+  {title ? <title id={titleId}>{title}</title> : null}
+  <defs id="defs2" />
+  <g id="layer1">
+    <path style={{
+        fill: "#000000",
+        fillOpacity: 1
+      }} d="m 73.62375,37.865 c ... (your path data here) ..." id="path857" />
+  </g>
+</svg>
