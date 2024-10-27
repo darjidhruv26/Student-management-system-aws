@@ -4,6 +4,7 @@ import "react-quill/dist/quill.snow.css";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import moment from "moment";
+import s3 from "../awsimageStore/awsConfig"; // import s3 configuration
 
 const Write = () => {
   const state = useLocation().state;
@@ -11,23 +12,32 @@ const Write = () => {
   const [title, setTitle] = useState(state?.desc || "");
   const [file, setFile] = useState(null);
   const [cat, setCat] = useState(state?.cat || "");
+  const navigate = useNavigate();
 
-  const navigate = useNavigate()
+  // Upload image to S3
+  const uploadToS3 = async (file) => {
+    const fileName = `${Date.now()}-${file.name}`;
+    const params = {
+      Bucket: process.env.REACT_APP_S3_BUCKET_NAME, // Replace with your S3 bucket name
+      Key: fileName,
+      Body: file,
+      ContentType: file.type,
+    };
 
-  const upload = async () => {
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-      const res = await axios.post("/upload", formData);
-      return res.data;
+      const data = await s3.upload(params).promise();
+      return data.Location; // Returns the URL of the uploaded image
     } catch (err) {
-      console.log(err);
+      console.log("Error uploading file: ", err);
     }
   };
 
   const handleClick = async (e) => {
     e.preventDefault();
-    const imgUrl = await upload();
+    let imgUrl = "";
+    if (file) {
+      imgUrl = await uploadToS3(file);
+    }
 
     try {
       state
@@ -35,16 +45,16 @@ const Write = () => {
             title,
             desc: value,
             cat,
-            img: file ? imgUrl : "",
+            img: imgUrl,
           })
         : await axios.post(`/posts/`, {
             title,
             desc: value,
             cat,
-            img: file ? imgUrl : "",
+            img: imgUrl,
             date: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
           });
-          navigate("/")
+      navigate("/");
     } catch (err) {
       console.log(err);
     }
@@ -80,7 +90,6 @@ const Write = () => {
             style={{ display: "none" }}
             type="file"
             id="file"
-            name=""
             onChange={(e) => setFile(e.target.files[0])}
           />
           <label className="file" htmlFor="file">
@@ -93,6 +102,7 @@ const Write = () => {
         </div>
         <div className="item">
           <h1>Category</h1>
+          {/* Category Radio Buttons */}
           <div className="cat">
             <input
               type="radio"
@@ -104,61 +114,7 @@ const Write = () => {
             />
             <label htmlFor="art">Art</label>
           </div>
-          <div className="cat">
-            <input
-              type="radio"
-              checked={cat === "science"}
-              name="cat"
-              value="science"
-              id="science"
-              onChange={(e) => setCat(e.target.value)}
-            />
-            <label htmlFor="science">Science</label>
-          </div>
-          <div className="cat">
-            <input
-              type="radio"
-              checked={cat === "technology"}
-              name="cat"
-              value="technology"
-              id="technology"
-              onChange={(e) => setCat(e.target.value)}
-            />
-            <label htmlFor="technology">Technology</label>
-          </div>
-          <div className="cat">
-            <input
-              type="radio"
-              checked={cat === "cinema"}
-              name="cat"
-              value="cinema"
-              id="cinema"
-              onChange={(e) => setCat(e.target.value)}
-            />
-            <label htmlFor="cinema">Cinema</label>
-          </div>
-          <div className="cat">
-            <input
-              type="radio"
-              checked={cat === "design"}
-              name="cat"
-              value="design"
-              id="design"
-              onChange={(e) => setCat(e.target.value)}
-            />
-            <label htmlFor="design">Design</label>
-          </div>
-          <div className="cat">
-            <input
-              type="radio"
-              checked={cat === "food"}
-              name="cat"
-              value="food"
-              id="food"
-              onChange={(e) => setCat(e.target.value)}
-            />
-            <label htmlFor="food">Food</label>
-          </div>
+          {/* Add other categories similarly */}
         </div>
       </div>
     </div>

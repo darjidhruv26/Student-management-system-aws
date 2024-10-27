@@ -1,13 +1,10 @@
-import React from "react";
-import { useEffect } from "react";
-import { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
-
-  const cat = useLocation().search
+  const cat = useLocation().search;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,11 +18,10 @@ const Home = () => {
     fetchData();
   }, [cat]);
 
-  const getText = (html) =>{
-    const doc = new DOMParser().parseFromString(html, "text/html")
-    return doc.body.textContent
-  }
-
+  const getText = (html) => {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    return doc.body.textContent;
+  };
 
   return (
     <div className="home">
@@ -33,7 +29,8 @@ const Home = () => {
         {posts.map((post) => (
           <div className="post" key={post.id}>
             <div className="img">
-              <img src={`../upload/${post.img}`} alt="" />
+              {/* Display image directly from S3 URL */}
+              {post.img && <img src={post.img} alt="Post" />}
             </div>
             <div className="content">
               <Link className="link" to={`/post/${post.id}`}>
