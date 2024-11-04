@@ -9,7 +9,7 @@ on:
         type: string
       tf-cli-version:
         description: 'The Terraform CLI version (ref: https://www.terraform.io/downloads)'
-        default: '1.2.3'
+        default: '2.0.0'
         required: false
         type: string
       tf-workspace:
@@ -33,15 +33,6 @@ on:
       AWS_SECRET_ACCESS_KEY:
         description: 'The AWS secret access key associated with the AWS access key ID'
         required: true
-      AWS_ROLE_TO_ASSUME:
-        description: 'The role (cicd-role) with privileges to provision resources into AWS'
-        required: true
-      AWS_ROLE_EXTERNAL_ID:
-        description: 'The external ID provided when assuming a role assert the circumstances in which the user is operating'
-        required: true
-      TF_API_TOKEN:
-        description: 'The team API token for the Terraform Cloud Team: cloud-operations-admin'
-        required: true
 
 jobs:
   provision-infra:
@@ -59,7 +50,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-southeast-2
+          aws-region: ap-south-1
           role-duration-seconds: 900
           role-session-name: github-action
           role-skip-session-tagging: true
@@ -78,8 +69,8 @@ jobs:
         working-directory: ./infrastructure/app
         id: init
         run: terraform init
-        env:          
-          TF_WORKSPACE: ${{ inputs.tf-workspace }}
+        # env:          
+        #   TF_WORKSPACE: ${{ inputs.tf-workspace }}
 
       - name: Terraform Validate
         working-directory: ./infrastructure/app

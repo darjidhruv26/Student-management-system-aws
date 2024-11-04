@@ -18,12 +18,6 @@ on:
         required: true
       AWS_SECRET_ACCESS_KEY:
         required: true
-      AWS_ROLE_TO_ASSUME:
-        required: true
-      AWS_ROLE_EXTERNAL_ID:
-        required: true
-      TF_API_TOKEN:
-        required: true
 
 jobs:
   deploy-web-ui-artifact:
