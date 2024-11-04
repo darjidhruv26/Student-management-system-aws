@@ -1,0 +1,68 @@
+name: Provision Infrastructure PR Test
+on:
+  pull_request:
+    branches:
+      - main
+      - develop
+      - Infrastructure-terrafrom
+    paths:
+      - infrastructure/app/**
+      - .github/workflows/provision-infrastructure*
+
+jobs:
+  provision-infra:
+    name: Plan Infra Codebase
+    # environment: Development
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-external-id: ${{ secrets.AWS_ROLE_EXTERNAL_ID }}
+          role-duration-seconds: 900
+          role-session-name: github-action
+          role-skip-session-tagging: true
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ inputs.tf-cli-version }}
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Format
+        working-directory: ./infrastructure/app
+        id: fmt
+        run: terraform fmt
+
+      - name: Terraform Init
+        working-directory: ./infrastructure/app
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: ./infrastructure/app
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        # run: terraform -chdir=infrastructure/* plan -no-color -var-file="dev/terraform.auto.tfvars"
+        run: terraform -chdir=infrastructure/app plan
+        env:
+          TF_VAR_access_key: ${{env.AWS_ACCESS_KEY_ID}}
+          TF_VAR_secret_key: ${{env.AWS_SECRET_ACCESS_KEY}}
+
+      - name: Update Pull Request
+        uses: robburger/terraform-pr-commenter@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          commenter_type: plan
+          commenter_input: ${{ format('{0}{1}', steps.plan.outputs.stdout, steps.plan.outputs.stderr) }}
+          commenter_exitcode: ${{ steps.plan.outputs.exitcode }}

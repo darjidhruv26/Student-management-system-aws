@@ -1,0 +1,101 @@
+# Reusable workflow to provision infrastructure
+name: Provision Infrastructure
+on:
+  workflow_call:
+    inputs:
+      env:
+        description: 'The environment in which resources are created. Stage, e.g. dev, uat, prod'
+        required: true
+        type: string
+      tf-cli-version:
+        description: 'The Terraform CLI version (ref: https://www.terraform.io/downloads)'
+        default: '1.2.3'
+        required: false
+        type: string
+      tf-workspace:
+        description: 'Name of the Terraform Cloud workspace configured with the API-driven run workflow'
+        required: true
+        type: string
+      tf-var-file:
+        description: 'The variables definition file name for provisioning resources into an environment'
+        required: true
+        type: string
+      update-readme:
+        description: 'Flag to update the Terraform infrastructure README.md documentation'
+        required: false
+        type: boolean
+        default: false
+
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        description: 'The AWS access key ID for a user (cicd-user) Terraform uses to provision resources into AWS'
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        description: 'The AWS secret access key associated with the AWS access key ID'
+        required: true
+      AWS_ROLE_TO_ASSUME:
+        description: 'The role (cicd-role) with privileges to provision resources into AWS'
+        required: true
+      AWS_ROLE_EXTERNAL_ID:
+        description: 'The external ID provided when assuming a role assert the circumstances in which the user is operating'
+        required: true
+      TF_API_TOKEN:
+        description: 'The team API token for the Terraform Cloud Team: cloud-operations-admin'
+        required: true
+
+jobs:
+  provision-infra:
+    name: Provision Infrastructure
+    environment: ${{ inputs.env }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-southeast-2
+          role-duration-seconds: 900
+          role-session-name: github-action
+          role-skip-session-tagging: true
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v1
+        with:
+          terraform_version: ${{ inputs.tf-cli-version }}
+          # cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Terraform Format
+        working-directory: ./infrastructure/app
+        run: terraform fmt
+
+      - name: Terraform Init
+        working-directory: ./infrastructure/app
+        id: init
+        run: terraform init
+        env:          
+          TF_WORKSPACE: ${{ inputs.tf-workspace }}
+
+      - name: Terraform Validate
+        working-directory: ./infrastructure/app
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform -chdir=infrastructure/app plan -no-color -var-file="${{ inputs.tf-var-file }}"
+        env:
+          TF_VAR_access_key: ${{env.AWS_ACCESS_KEY_ID}}
+          TF_VAR_secret_key: ${{env.AWS_SECRET_ACCESS_KEY}}
+
+      - name: Terraform Apply
+        id: apply
+        run: terraform -chdir=infrastructure/app apply -no-color -var-file="${{ inputs.tf-var-file }}" --auto-approve
+        env:
+          TF_VAR_access_key: ${{env.AWS_ACCESS_KEY_ID}}
+          TF_VAR_secret_key: ${{env.AWS_SECRET_ACCESS_KEY}}
