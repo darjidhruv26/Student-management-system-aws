@@ -2,8 +2,8 @@ name: Provision Infrastructure PR Test
 on:
   pull_request:
     branches:
-    #   - main
-    #   - develop
+      - main
+      - develop
       - Infrastructure-terrafrom
     paths:
       - infrastructure/app/**
@@ -34,7 +34,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform Format
-        working-directory: ./infrastructure/app
+        working-directory: ./infrastructure/app/**
         id: fmt
         run: terraform fmt
 
