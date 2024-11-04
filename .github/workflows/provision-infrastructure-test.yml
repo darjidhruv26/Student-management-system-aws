@@ -34,7 +34,7 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform Format
-        working-directory: ./infrastructure/app
+        working-directory: ./infrastructure/app/**
         id: fmt
         run: terraform fmt
 
