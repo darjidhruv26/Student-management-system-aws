@@ -1,0 +1,80 @@
+# Reusable workflow to deploy the web UI
+
+name: Web UI Deployment
+on:
+  workflow_call:
+    inputs:
+      env:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      tf-workspace:
+        required: true
+        type: string
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
+jobs:
+  deploy-web-ui-artifact:
+    runs-on: ubuntu-latest
+    environment: ${{ inputs.env }}
+        
+    steps:
+
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ap-south-1
+        role-duration-seconds: 900
+        role-session-name: github-action
+        role-skip-session-tagging: true
+        
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v1
+      with:
+        node-version: 20.x
+
+    # Web UI Steps
+    - name: Npm Install
+      working-directory: ./client
+      run: |
+        npm install --force
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 2.0.0
+        terraform_wrapper: false
+        # cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+    - name: Extracting resource name from Terraform
+      working-directory: ./infrastructure/app
+      run: |
+        terraform init
+        terraform state pull
+        echo "::set-output name=CDN_ID::$(terraform output -json cloudfront_distribution_id | jq -r)"
+        echo "::set-output name=WEBUI_BUCKET_NAME::$(terraform output -json webui_bucket_id | jq -r)" 
+      id: tf-resources
+      env:
+        TF_VAR_access_key: ${{env.AWS_ACCESS_KEY_ID}}
+        TF_VAR_secret_key: ${{env.AWS_SECRET_ACCESS_KEY}}
+
+    - name: Deploy Web UI to S3
+      working-directory: ./client/build
+      run: |
+        aws s3 sync . s3://${{ steps.tf-resources.outputs.WEBUI_BUCKET_NAME }} --delete
+
+    - name: Clearing CDN
+      run: |
+        aws cloudfront create-invalidation --distribution-id ${{ steps.tf-resources.outputs.CDN_ID }} --paths "/*"
