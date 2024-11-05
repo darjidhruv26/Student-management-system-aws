@@ -62,31 +62,31 @@ jobs:
           # cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform Format
-        working-directory: ./infrastructure/app
+        working-directory: ./Infrastructure/app
         run: terraform fmt
 
       - name: Terraform Init
-        working-directory: ./infrastructure/app
+        working-directory: ./Infrastructure/app
         id: init
         run: terraform init
         # env:          
         #   TF_WORKSPACE: ${{ inputs.tf-workspace }}
 
       - name: Terraform Validate
-        working-directory: ./infrastructure/app
+        working-directory: ./Infrastructure/app
         id: validate
         run: terraform validate -no-color
 
       - name: Terraform Plan
         id: plan
-        run: terraform -chdir=infrastructure/app plan -no-color -var-file="${{ inputs.tf-var-file }}"
+        run: terraform -chdir=Infrastructure/app plan -no-color -var-file="${{ inputs.tf-var-file }}"
         env:
           TF_VAR_access_key: ${{env.AWS_ACCESS_KEY_ID}}
           TF_VAR_secret_key: ${{env.AWS_SECRET_ACCESS_KEY}}
 
       - name: Terraform Apply
         id: apply
-        run: terraform -chdir=infrastructure/app apply -no-color -var-file="${{ inputs.tf-var-file }}" --auto-approve
+        run: terraform -chdir=Infrastructure/app apply -no-color -var-file="${{ inputs.tf-var-file }}" --auto-approve
         env:
           TF_VAR_access_key: ${{env.AWS_ACCESS_KEY_ID}}
           TF_VAR_secret_key: ${{env.AWS_SECRET_ACCESS_KEY}}
