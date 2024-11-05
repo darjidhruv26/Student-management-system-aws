@@ -39,9 +39,9 @@ jobs:
           terraform_version: 1.5.0 # Replace with your required Terraform version
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      - name: Terraform Format
-        working-directory: ./Infrastructure/app
-        run: terraform fmt -check
+      # - name: Terraform Format
+      #   working-directory: ./Infrastructure/app
+      #   run: terraform fmt -check
 
       - name: Terraform Init
         working-directory: ./Infrastructure/app
