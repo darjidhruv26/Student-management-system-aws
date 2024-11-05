@@ -1,0 +1,56 @@
+name: Dev Deployment
+
+on:
+  workflow_run:
+    workflows: [build]
+    types: [completed]
+    branches: [main]
+
+jobs:
+  build-completed:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+
+    outputs:
+      deployment_id: ${{ steps.deployment.outputs.deployment_id  }}
+
+    steps:
+      - name: Build Completed
+        run: echo "Build completed"
+
+      - uses: chrnorm/deployment-action@v2
+        name: Create GitHub deployment
+        id: deployment
+        with:
+          token: '${{ github.token }}'
+          environment: Development
+
+  main-branch:
+    needs: build-completed
+    runs-on: ubuntu-latest
+    if:  ${{github.ref == 'refs/heads/main'}}
+    steps:
+
+      - name: Checkout the branch
+        uses: actions/checkout@v3
+
+      - name: Main Branch
+        run: echo "main branch"
+
+  infrastructure-deployment:
+    needs: main-branch
+    uses: ./.github/workflows/provision-infrastructure.yml
+    with:
+      env: 'Development'
+      tf-workspace: "blog-app-dev"
+      tf-var-file: "dev/terraform.auto.tfvars"
+    secrets: inherit
+
+  deploy-ui:
+    needs: main-branch
+    uses: ./.github/workflows/ui-deployment.yml
+    with:
+      env: 'Development'
+      environment: 'dev'
+      tf-workspace: "blog-app-dev"
+    secrets: inherit
