@@ -1,20 +1,20 @@
 name: Provision Infrastructure PR Test
 on:
-  # pull_request:
-  #   branches:
-  #     - main
-  #     - develop
-  #     - Infrastructure-terrafrom
-  #   paths:
-  #     - Infrastructure/app/**
-  #     - .github/workflows/provision-infrastructure*
+  pull_request:
+    branches:
+      - main
+      - develop
+      - Infrastructure-terrafrom
+    paths:
+      - Infrastructure/app/**
+      - .github/workflows/provision-infrastructure*
 
-    push:
-      branches:
-        - Infrastructure-terrafrom
-      paths:
-        - Infrastructure/app/**
-        - .github/workflows/provision-infrastructure*
+    # push:
+    #   branches:
+    #     - Infrastructure-terrafrom
+    #   paths:
+    #     - Infrastructure/app/**
+    #     - .github/workflows/provision-infrastructure*
 jobs:
   provision-infra:
     name: Plan Infra Codebase
