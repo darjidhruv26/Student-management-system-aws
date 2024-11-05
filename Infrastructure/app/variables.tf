@@ -14,19 +14,16 @@ variable "name_prefix" {
 variable "env" {
   description = "A logical name to env for which resources are created. Stage, e.g. 'dev', 'uat', 'prod'."
   type        = string
-  default     = "dev"
 }
 
 variable "team_abbrv" {
   description = "The team abbreviation"
   type        = string
-  default     = "dev"
 }
 
 variable "purpose" {
   description = "The purpose of the resource"
   type        = string
-  default     = "dev"
 }
 
 
