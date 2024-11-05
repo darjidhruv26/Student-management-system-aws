@@ -1,20 +1,12 @@
 name: Provision Infrastructure PR Test
 on:
-  # pull_request:
-  #   branches:
-  #     - main
-  #     - develop
-  #     - Infrastructure-terrafrom
-  #   paths:
-  #     - infrastructure/app/**
-  #     - .github/workflows/provision-infrastructure*
+  push:
+    branches:
+      - Infrastructure-terrafrom
+    paths:
+      - infrastructure/app/**
+      - .github/workflows/provision-infrastructure*
 
-    push:
-      branches:
-        - Infrastructure-terrafrom
-      paths:
-        - infrastructure/app/**
-        - .github/workflows/provision-infrastructure*
 jobs:
   provision-infra:
     name: Plan Infra Codebase
@@ -22,6 +14,12 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
+      - name: List Current Directory
+        run: ls -la
+
+      - name: List Infrastructure Directory
+        run: ls -la ./infrastructure
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -36,23 +34,23 @@ jobs:
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: 1.5.0 # Replace with your required Terraform version
+          terraform_version: 1.5.0
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform Format
-        working-directory: ./infrastructure/app
+        working-directory: ./infrastructure/app # Ensure this path is correct
         run: terraform fmt -check
 
       - name: Terraform Init
-        working-directory: ./infrastructure/app
+        working-directory: ./infrastructure/app # Ensure this path is correct
         run: terraform init
 
       - name: Terraform Validate
-        working-directory: ./infrastructure/app
+        working-directory: ./infrastructure/app # Ensure this path is correct
         run: terraform validate -no-color
 
       - name: Terraform Plan
-        working-directory: ./infrastructure/app
+        working-directory: ./infrastructure/app # Ensure this path is correct
         run: terraform plan -no-color
         env:
           TF_VAR_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
