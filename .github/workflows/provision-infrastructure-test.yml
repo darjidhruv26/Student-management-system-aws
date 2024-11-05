@@ -9,12 +9,6 @@ on:
       - Infrastructure/app/**
       - .github/workflows/provision-infrastructure*
 
-    # push:
-    #   branches:
-    #     - Infrastructure-terrafrom
-    #   paths:
-    #     - Infrastructure/app/**
-    #     - .github/workflows/provision-infrastructure*
 jobs:
   provision-infra:
     name: Plan Infra Codebase
@@ -39,10 +33,6 @@ jobs:
           terraform_version: 1.5.0 
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
-      # - name: Terraform Format
-      #   working-directory: ./Infrastructure/app
-      #   run: terraform fmt -check
-
       - name: Terraform Init
         id: init
         working-directory: ./Infrastructure/app
@@ -56,7 +46,7 @@ jobs:
       - name: Terraform Plan
         id: plan
         working-directory: ./Infrastructure/app
-        run: terraform plan -no-color
+        run: terraform plan -no-color -var-file="dev/terraform.auto.tfvars"
         env:
           TF_VAR_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
           TF_VAR_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

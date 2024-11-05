@@ -16,7 +16,7 @@ terraform.rc
 *.tfplan
 
 # Ignore Terraform variable files with sensitive data
-*.tfvars
+# *.tfvars
 *.tfvars.json
 
 # Ignore backup files created by Terraform
