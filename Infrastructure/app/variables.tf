@@ -20,11 +20,13 @@ variable "env" {
 variable "team_abbrv" {
   description = "The team abbreviation"
   type        = string
+  default     = "dev"
 }
 
 variable "purpose" {
   description = "The purpose of the resource"
   type        = string
+  default     = "dev"
 }
 
 

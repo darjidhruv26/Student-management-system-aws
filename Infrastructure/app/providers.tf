@@ -1,12 +1,10 @@
 # Configure the AWS Provider
 provider "aws" {
-  region                   = "ap-south-1" 
-  shared_credentials_files = ["~/.aws/credentials"] # path to AWS credentials file
-  profile                  = "Dhruv@Dev" # profile name in credentials file
+  region = "ap-south-1"
 
-   default_tags {
+  default_tags {
     tags = {
-      "blog:technical:environment"     = local.env_uppercase
+      "blog:technical:environment" = local.env_uppercase
     }
   }
 }
