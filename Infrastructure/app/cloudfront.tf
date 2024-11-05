@@ -62,7 +62,7 @@ module "cloudfront" {
       query_string    = true
     }
   ]
-  
+
   # This distribution has a dependency on the S3 web UI bucket being created 
   depends_on = [
     module.webui_bucket.s3_bucket_id

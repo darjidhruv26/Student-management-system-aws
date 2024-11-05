@@ -17,9 +17,9 @@ data "aws_region" "current" {
 
 
 locals {
-  name_prefix          = lower(var.name_prefix)
-  webui_bucket_name    = "blog-${var.team_abbrv}-${var.purpose}-webui-${local.env_lowercase}-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
-  s3_origin_id = "blog-${local.env_lowercase}"
+  name_prefix       = lower(var.name_prefix)
+  webui_bucket_name = "blog-${var.team_abbrv}-${var.purpose}-webui-${local.env_lowercase}-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
+  s3_origin_id      = "blog-${local.env_lowercase}"
 
   env_lowercase = lower(var.env)
   env_uppercase = upper(var.env)
