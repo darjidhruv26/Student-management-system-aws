@@ -18,7 +18,7 @@ const Write = () => {
   const uploadToS3 = async (file) => {
     const fileName = `${Date.now()}-${file.name}`;
     const params = {
-      Bucket: process.env.REACT_APP_S3_BUCKET_NAME, // Replace with your S3 bucket name
+      Bucket: process.env.REACT_APP_S3_BUCKET_NAME,
       Key: fileName,
       Body: file,
       ContentType: file.type,
@@ -26,7 +26,7 @@ const Write = () => {
 
     try {
       const data = await s3.upload(params).promise();
-      return data.Location; // Returns the URL of the uploaded image
+      return data.Location;
     } catch (err) {
       console.log("Error uploading file: ", err);
     }
@@ -102,7 +102,6 @@ const Write = () => {
         </div>
         <div className="item">
           <h1>Category</h1>
-          {/* Category Radio Buttons */}
           <div className="cat">
             <input
               type="radio"
@@ -114,7 +113,61 @@ const Write = () => {
             />
             <label htmlFor="art">Art</label>
           </div>
-          {/* Add other categories similarly */}
+          <div className="cat">
+            <input
+              type="radio"
+              checked={cat === "science"}
+              name="cat"
+              value="science"
+              id="science"
+              onChange={(e) => setCat(e.target.value)}
+            />
+            <label htmlFor="science">Science</label>
+          </div>
+          <div className="cat">
+            <input
+              type="radio"
+              checked={cat === "technology"}
+              name="cat"
+              value="technology"
+              id="technology"
+              onChange={(e) => setCat(e.target.value)}
+            />
+            <label htmlFor="technology">Technology</label>
+          </div>
+          <div className="cat">
+            <input
+              type="radio"
+              checked={cat === "cinema"}
+              name="cat"
+              value="cinema"
+              id="cinema"
+              onChange={(e) => setCat(e.target.value)}
+            />
+            <label htmlFor="cinema">Cinema</label>
+          </div>
+          <div className="cat">
+            <input
+              type="radio"
+              checked={cat === "design"}
+              name="cat"
+              value="design"
+              id="design"
+              onChange={(e) => setCat(e.target.value)}
+            />
+            <label htmlFor="design">Design</label>
+          </div>
+          <div className="cat">
+            <input
+              type="radio"
+              checked={cat === "food"}
+              name="cat"
+              value="food"
+              id="food"
+              onChange={(e) => setCat(e.target.value)}
+            />
+            <label htmlFor="food">Food</label>
+          </div>
         </div>
       </div>
     </div>
